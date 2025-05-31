@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Model Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css"> </head>
+<body class="p-4 sm:p-8 bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="max-w-4xl w-full bg-white p-6 sm:p-8 rounded-xl shadow-2xl space-y-8">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-center text-gray-800 mb-6">Financial Model Simulator</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-blue-50 p-5 rounded-lg shadow-inner">
+                <h2 class="text-xl font-semibold text-blue-800 mb-4">Loan Parameters</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="loanAmount" class="block text-sm font-medium text-gray-700">Loan Amount (INR)</label>
+                        <input type="number" id="loanAmount" value="10000000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="loanInterestRate" class="block text-sm font-medium text-gray-700">Annual Interest Rate (%)</label>
+                        <input type="number" id="loanInterestRate" value="8.85" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="loanTenureYears" class="block text-sm font-medium text-gray-700">Tenure (Years)</label>
+                        <input type="number" id="loanTenureYears" value="10" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="loanStartDate" class="block text-sm font-medium text-gray-700">Loan Start Date</label>
+                        <input type="date" id="loanStartDate" value="2025-05-28" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-green-50 p-5 rounded-lg shadow-inner">
+                <h2 class="text-xl font-semibold text-green-800 mb-4">Bond Parameters</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="bondFaceValue" class="block text-sm font-medium text-gray-700">Face Value per Bond (INR)</label>
+                        <input type="number" id="bondFaceValue" value="100000" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="bondCouponRate" class="block text-sm font-medium text-gray-700">Annual Coupon Rate (%)</label>
+                        <input type="number" id="bondCouponRate" value="12" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="bondMarketPrice" class="block text-sm font-medium text-gray-700">Market Price per Bond (INR)</label>
+                        <input type="number" id="bondMarketPrice" value="99304.7" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="bondAccruedInterest" class="block text-sm font-medium text-gray-700">Accrued Interest Adjustment (INR)</label>
+                        <input type="number" id="bondAccruedInterest" value="-164.38" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="bondMaturityDate" class="block text-sm font-medium text-gray-700">Bond Maturity Date</label>
+                        <input type="date" id="bondMaturityDate" value="2029-04-04" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="tdsRate" class="block text-sm font-medium text-gray-700">TDS Rate on Bond Interest (%)</label>
+                        <input type="number" id="tdsRate" value="10.0" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-yellow-50 p-5 rounded-lg shadow-inner">
+            <h2 class="text-xl font-semibold text-yellow-800 mb-4">Common Dates</h2>
+            <div>
+                <label for="firstPaymentDate" class="block text-sm font-medium text-gray-700">First Payment Date (Bond Interest & Loan EMI)</label>
+                <input type="date" id="firstPaymentDate" value="2025-07-04" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+            </div>
+            <div>
+                <label for="previousBondPaymentDate" class="block text-sm font-medium text-gray-700">Previous Bond Payment Date (for first coupon calc)</label>
+                <input type="date" id="previousBondPaymentDate" value="2025-06-04" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm">
+            </div>
+        </div>
+
+        <div class="bg-red-50 p-5 rounded-lg shadow-inner">
+            <h2 class="text-xl font-semibold text-red-800 mb-4">Inflation & Market Parameters</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="inflationRate" class="block text-sm font-medium text-gray-700">Annual Inflation Rate (%)</label>
+                    <input type="number" id="inflationRate" value="6.0" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="marketSipAnnualReturn" class="block text-sm font-medium text-gray-700">Market Annual Return (%)</label>
+                    <input type="number" id="marketSipAnnualReturn" value="8.0" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button id="runSimulationBtn" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-full shadow-lg hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition transform hover:scale-105">
+                Run Simulation
+            </button>
+        </div>
+
+        <div id="results" class="space-y-6 hidden">
+            <h2 class="text-2xl font-bold text-gray-800 text-center">Overall Simulation Results</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                <div class="bg-purple-50 p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-600">Nominal IRR (Post-TDS)</p>
+                    <p id="nominalIrrResult" class="text-2xl font-bold text-purple-700 mt-1"></p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-600">Real IRR (Post-TDS)</p>
+                    <p id="realIrrResult" class="text-2xl font-bold text-purple-700 mt-1"></p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center mt-4">
+                <div class="bg-purple-50 p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-600">Nominal IRR (Pre-TDS)</p>
+                    <p id="preTdsNominalIrrResult" class="text-2xl font-bold text-purple-700 mt-1"></p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-600">Real IRR (Pre-TDS)</p>
+                    <p id="preTdsRealIrrResult" class="text-2xl font-bold text-purple-700 mt-1"></p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center mt-4">
+                <div class="bg-purple-50 p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-600">Net Cash Flow (Post-TDS)</p>
+                    <p id="netCashFlowPostTDSResult" class="text-2xl font-bold text-purple-700 mt-1"></p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-600">Net Cash Flow (Pre-TDS)</p>
+                    <p id="netCashFlowPreTDSResult" class="2xl font-bold text-purple-700 mt-1"></p>
+                </div>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-700 mt-8 mb-4 text-center">Market Comparison Summary</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                <div class="bg-purple-50 p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-600">Market Appreciation (Post-TDS Cash Flows)</p>
+                    <p id="marketCompAppreciatedValuePostTDS" class="text-2xl font-bold text-purple-700 mt-1"></p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-600">Market Appreciation (Pre-TDS Cash Flows)</p>
+                    <p id="marketCompAppreciatedValuePreTDS" class="text-2xl font-bold text-purple-700 mt-1"></p>
+                </div>
+            </div>
+
+
+            <h3 class="text-xl font-semibold text-gray-700 mt-8 mb-4 text-center">Cash Flow Details</h3>
+
+            <div class="flex justify-center space-x-4 mb-6">
+                <button id="tabPostTDS" class="tab-button px-4 py-2 rounded-md font-medium text-sm transition-colors duration-200">Post-TDS Cash Flow</button>
+                <button id="tabPreTDS" class="tab-button px-4 py-2 rounded-md font-medium text-sm transition-colors duration-200">Pre-TDS Cash Flow</button>
+                <button id="tabMarketComp" class="tab-button px-4 py-2 rounded-md font-medium text-sm transition-colors duration-200">Market Comparison</button>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg shadow-md table-container">
+                <table id="cashFlowTable" class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50" id="cashFlowTableHeader">
+                        </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="cashFlowTableBody">
+                        </tbody>
+                </table>
+            </div>
+            <div id="messageBox" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md" role="alert">
+                <p id="messageText"></p>
+            </div>
+
+            <div class="text-center mt-8">
+                <button id="exportToExcelBtn" class="px-6 py-2 bg-emerald-500 text-white font-semibold rounded-full shadow-md hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition transform hover:scale-105">
+                    Export to Excel (CSV)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script> </body>
+</html>
