@@ -299,6 +299,67 @@ const D = {
 
 // --- Helper Functions for DOM Updates and State Sync ---
 
+// Define handleInput function -- THIS WAS MISSING!
+function handleInput(event) {
+    const { id, name, value, type, checked } = event.target;
+
+    // Update global state based on input type
+    if (type === 'radio') {
+        if (name === 'loanTaken') {
+            loanTaken = value;
+        } else if (name === 'loanStatus') {
+            loanStatus = value;
+        } else if (name === 'hasRentalIncome') {
+            hasRentalIncome = value;
+        } else if (name === 'rentalType') {
+            rentalType = value;
+        } else if (name === 'rentIncreaseType') {
+            rentIncreaseType = value;
+        } else if (name === 'hasRecurringExpenses') {
+            hasRecurringExpenses = value;
+        }
+    } else if (type === 'checkbox') {
+        if (id === 'isLoanEndDateToday') {
+            isLoanEndDateToday = checked;
+            loanEndDate = checked ? getTodayDateString() : ''; // Set or clear loanEndDate
+            D.loanEndDate.value = loanEndDate; // Update the DOM input directly
+        } else if (id === 'isRentalEndDateToday') {
+            isRentalEndDateToday = checked;
+            rentalEndDate = checked ? getTodayDateString() : ''; // Set or clear rentalEndDate
+            D.rentalEndDate.value = rentalEndDate; // Update the DOM input directly
+        }
+    } else {
+        // For text, number, date, select inputs
+        switch (id) {
+            case 'purchaseDate': purchaseDate = value; break;
+            case 'purchasePrice': purchasePrice = value; break;
+            case 'loanPrincipal': loanPrincipal = value; break;
+            case 'loanAnnualRate': loanAnnualRate = value; break;
+            case 'loanStartDate': loanStartDate = value; break;
+            case 'loanTermMonths': loanTermMonths = value; break;
+            case 'loanEndDate': loanEndDate = value; break;
+            case 'rentalAmount': rentalAmount = value; break;
+            case 'rentalStartDate': rentalStartDate = value; break;
+            case 'rentalEndDate': rentalEndDate = value; break;
+            case 'rentIncreaseValue': rentIncreaseValue = value; break;
+            case 'recurringExpenseAmount': recurringExpenseAmount = value; break;
+            case 'recurringExpenseFrequency': recurringExpenseFrequency = value; break;
+            case 'recurringExpenseStartDate': recurringExpenseStartDate = value; break;
+            case 'recurringExpenseEndDate': recurringExpenseEndDate = value; break;
+            case 'saleDate': saleDate = value; break;
+            case 'salePrice': salePrice = value; break;
+            case 'estimatedCapitalGainsTax': estimatedCapitalGainsTax = value; break;
+            case 'inflationRate': inflationRate = value; break;
+            default: break;
+        }
+    }
+
+    saveState(); // Save updated state to localStorage
+    updateConditionalSections(); // Update visibility of sections
+    updateRentIncreaseInputDisplay(); // Update rent increase input label/placeholder
+}
+
+
 // Function to save all state to localStorage
 function saveState() {
     const state = {
@@ -311,7 +372,8 @@ function saveState() {
     };
     for (const key in state) {
         let valueToStore = state[key];
-        if (key.includes('Date') && valueToStore instanceof Date) { // Ensure date objects are converted to YYYY-MM-DD
+        // Ensure date objects are converted to YYYY-MM-DD strings for consistency if accidentally set as Date objects
+        if (key.includes('Date') && valueToStore instanceof Date) {
             valueToStore = getTodayDateString(valueToStore);
         }
         localStorage.setItem(key, valueToStore);
@@ -846,7 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
     D.calculateButton.addEventListener('click', handleCalculate);
     D.exportCsvButton.addEventListener('click', () => exportCashFlowsToCsv(cashFlowsDisplay)); // Pass the global display array
 
-    // Listeners for radio buttons to update sections immediately
+    // Listeners for radio buttons to update sections immediately (they trigger handleInput anyway)
     document.querySelectorAll('input[name="loanTaken"]').forEach(radio => {
         radio.addEventListener('change', handleInput);
     });
