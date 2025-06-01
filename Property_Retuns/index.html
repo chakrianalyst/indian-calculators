@@ -3,71 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Returns Calculator</title>
+    <title>Property Returns Financial Model Simulator</title>
     <link rel="stylesheet" href="style.css">
-    </head>
+</head>
 <body>
     <div class="calculator-container">
-        <h1>Property Returns Calculator</h1>
+        <h1>Property Returns Financial Model Simulator</h1>
+
+        <div class="input-group">
+            <label for="assetName">Property Name:</label>
+            <input type="text" id="assetName" value="My Investment Property">
+        </div>
 
         <div class="input-group">
             <label for="purchasePrice">Purchase Price (INR):</label>
-            <input type="number" id="purchasePrice" value="5000000" min="0">
+            <input type="number" id="purchasePrice" value="10000000" min="0">
         </div>
 
         <div class="input-group">
-            <label for="initialExpenses">Initial Expenses (Stamp Duty, Registration, etc. - INR):</label>
-            <input type="number" id="initialExpenses" value="300000" min="0">
+            <label for="initialEquity">Initial Equity (INR):</label>
+            <input type="number" id="initialEquity" value="3000000" min="0">
         </div>
 
         <div class="input-group">
-            <label for="monthlyRent">Expected Monthly Rent (INR):</label>
-            <input type="number" id="monthlyRent" value="25000" min="0">
+            <label for="hasLoan">Do you plan to take a loan?</label>
+            <select id="hasLoan">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+        </div>
+
+        <div id="loanDetails" class="hidden">
+            <div class="input-group">
+                <label for="loanAmount">Loan Amount (INR):</label>
+                <input type="number" id="loanAmount" value="7000000" min="0">
+            </div>
+            <div class="input-group">
+                <label for="interestRate">Annual Interest Rate (%):</label>
+                <input type="number" id="interestRate" value="8.5" min="0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="loanTenure">Loan Tenure (Years):</label>
+                <input type="number" id="loanTenure" value="15" min="1">
+            </div>
         </div>
 
         <div class="input-group">
-            <label for="annualRentIncrease">Annual Rent Increase (%):</label>
-            <input type="number" id="annualRentIncrease" value="5" min="0" max="100">
+            <label for="assetType">How will this property generate income?</label>
+            <select id="assetType">
+                <option value="renting">Renting (e.g., residential, commercial)</option>
+                <option value="saving">Saving (e.g., personal use, no direct rent income)</option>
+            </select>
+        </div>
+
+        <div id="rentingDetails" class="hidden">
+            <div class="input-group">
+                <label for="monthlyRent">Monthly Rent (INR):</label>
+                <input type="number" id="monthlyRent" value="50000" min="0">
+            </div>
+            <div class="input-group">
+                <label for="annualRentIncrease">Annual Rent Increase (%):</label>
+                <input type="number" id="annualRentIncrease" value="5" min="0" max="100">
+            </div>
+        </div>
+
+        <div id="savingDetails" class="hidden">
+            <p>For 'Saving' assets, direct rent income is not calculated. Value appreciation is still applicable.</p>
         </div>
 
         <div class="input-group">
-            <label for="monthlyExpenses">Monthly Maintenance/Other Expenses (INR):</label>
-            <input type="number" id="monthlyExpenses" value="2000" min="0">
+            <label for="annualExpenses">Annual Recurring Expenses (Maintenance, Tax, etc. - INR):</label>
+            <input type="number" id="annualExpenses" value="60000" min="0">
         </div>
-
         <div class="input-group">
             <label for="annualExpensesIncrease">Annual Expenses Increase (%):</label>
             <input type="number" id="annualExpensesIncrease" value="3" min="0" max="100">
         </div>
-
         <div class="input-group">
             <label for="holdingPeriod">Holding Period (Years):</label>
-            <input type="number" id="holdingPeriod" value="5" min="1">
+            <input type="number" id="holdingPeriod" value="10" min="1">
         </div>
-
         <div class="input-group">
-            <label for="propertyAppreciation">Annual Property Appreciation (%):</label>
-            <input type="number" id="propertyAppreciation" value="8" min="0" max="100">
+            <label for="appreciationRate">Annual Appreciation Rate (%):</label>
+            <input type="number" id="appreciationRate" value="7" min="0" max="100">
         </div>
 
-        <div class="input-group">
-            <label for="salePrice">Expected Sale Price (Optional - INR):</label>
-            <input type="number" id="salePrice" placeholder="Calculated if empty">
-        </div>
+        <button id="runSimulation">Run Simulation</button>
 
-        <button id="calculateBtn">Calculate Returns</button>
+        <div id="results" class="results-section hidden">
+            <h2>Financial Summary: <span id="summaryAssetName"></span></h2>
 
-        <div id="results" class="results-section">
-            <h2>Results:</h2>
+            <h3>Overall Metrics:</h3>
             <p><strong>Total Initial Investment:</strong> <span id="totalInitialInvestment"></span></p>
-            <p><strong>Calculated Sale Price:</strong> <span id="calculatedSalePrice"></span></p>
-            <p><strong>Total Rent Income (over period):</strong> <span id="totalRentIncome"></span></p>
-            <p><strong>Total Expenses (over period):</strong> <span id="totalExpenses"></span></p>
-            <p><strong>Net Profit from Sale:</strong> <span id="netProfitFromSale"></span></p>
-            <p><strong>Overall Net Profit:</strong> <span id="overallNetProfit"></span></p>
-            <p><strong>Capitalization Rate (Cap Rate) - Year 1:</strong> <span id="capRate"></span></p>
-            <p><strong>Return on Investment (ROI) - Total:</strong> <span id="totalROI"></span></p>
+            <p><strong>Estimated Sale Value:</strong> <span id="estimatedSaleValue"></span></p>
+            <p><strong>Total Gross Income:</strong> <span id="totalGrossIncome"></span></p>
+            <p><strong>Total Expenses (Incl. Loan):</strong> <span id="totalExpenses"></span></p>
+            <p><strong>Overall Net Profit/Loss:</strong> <span id="overallNetProfit"></span></p>
+            <p><strong>Total ROI:</strong> <span id="totalROI"></span></p>
             <p><strong>Annualized Return (CAGR):</strong> <span id="annualizedReturn"></span></p>
+
+            <h3>Annual Breakdown:</h3>
+            <div class="table-container">
+                <table id="annualBreakdownTable">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Property Value</th>
+                            <th>Rental Income</th>
+                            <th>Loan EMI</th>
+                            <th>Interest Paid</th>
+                            <th>Principal Paid</th>
+                            <th>Loan Outstanding</th>
+                            <th>Other Expenses</th>
+                            <th>Net Cash Flow</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
