@@ -1,0 +1,121 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.calculator-container {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2em;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: bold;
+}
+
+.input-group input[type="number"] {
+    width: calc(100% - 20px); /* Adjust for padding */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+.results-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.results-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.results-section p {
+    background-color: #e9f7ef;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-left: 5px solid #28a745;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1em;
+    color: #333;
+}
+
+.results-section p strong {
+    color: #000;
+    flex-basis: 60%; /* Give strong tag more space */
+    text-align: left;
+}
+
+.results-section p span {
+    font-weight: bold;
+    color: #007bff; /* Highlight result numbers */
+    flex-basis: 40%;
+    text-align: right;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .calculator-container {
+        padding: 20px;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+    .results-section p {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .results-section p span {
+        text-align: left;
+        margin-top: 5px;
+    }
+}

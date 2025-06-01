@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Returns Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    </head>
+<body>
+    <div class="calculator-container">
+        <h1>Property Returns Calculator</h1>
+
+        <div class="input-group">
+            <label for="purchasePrice">Purchase Price (INR):</label>
+            <input type="number" id="purchasePrice" value="5000000" min="0">
+        </div>
+
+        <div class="input-group">
+            <label for="initialExpenses">Initial Expenses (Stamp Duty, Registration, etc. - INR):</label>
+            <input type="number" id="initialExpenses" value="300000" min="0">
+        </div>
+
+        <div class="input-group">
+            <label for="monthlyRent">Expected Monthly Rent (INR):</label>
+            <input type="number" id="monthlyRent" value="25000" min="0">
+        </div>
+
+        <div class="input-group">
+            <label for="annualRentIncrease">Annual Rent Increase (%):</label>
+            <input type="number" id="annualRentIncrease" value="5" min="0" max="100">
+        </div>
+
+        <div class="input-group">
+            <label for="monthlyExpenses">Monthly Maintenance/Other Expenses (INR):</label>
+            <input type="number" id="monthlyExpenses" value="2000" min="0">
+        </div>
+
+        <div class="input-group">
+            <label for="annualExpensesIncrease">Annual Expenses Increase (%):</label>
+            <input type="number" id="annualExpensesIncrease" value="3" min="0" max="100">
+        </div>
+
+        <div class="input-group">
+            <label for="holdingPeriod">Holding Period (Years):</label>
+            <input type="number" id="holdingPeriod" value="5" min="1">
+        </div>
+
+        <div class="input-group">
+            <label for="propertyAppreciation">Annual Property Appreciation (%):</label>
+            <input type="number" id="propertyAppreciation" value="8" min="0" max="100">
+        </div>
+
+        <div class="input-group">
+            <label for="salePrice">Expected Sale Price (Optional - INR):</label>
+            <input type="number" id="salePrice" placeholder="Calculated if empty">
+        </div>
+
+        <button id="calculateBtn">Calculate Returns</button>
+
+        <div id="results" class="results-section">
+            <h2>Results:</h2>
+            <p><strong>Total Initial Investment:</strong> <span id="totalInitialInvestment"></span></p>
+            <p><strong>Calculated Sale Price:</strong> <span id="calculatedSalePrice"></span></p>
+            <p><strong>Total Rent Income (over period):</strong> <span id="totalRentIncome"></span></p>
+            <p><strong>Total Expenses (over period):</strong> <span id="totalExpenses"></span></p>
+            <p><strong>Net Profit from Sale:</strong> <span id="netProfitFromSale"></span></p>
+            <p><strong>Overall Net Profit:</strong> <span id="overallNetProfit"></span></p>
+            <p><strong>Capitalization Rate (Cap Rate) - Year 1:</strong> <span id="capRate"></span></p>
+            <p><strong>Return on Investment (ROI) - Total:</strong> <span id="totalROI"></span></p>
+            <p><strong>Annualized Return (CAGR):</strong> <span id="annualizedReturn"></span></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
