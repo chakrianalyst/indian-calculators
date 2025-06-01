@@ -1,17 +1,17 @@
-// --- Utility Functions (Translated from React code) --- [cite: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+// --- Utility Functions ---
 
 const formatDate = (date) => {
     if (!date) return '';
     const d = new Date(date);
     // Use 'en-GB' locale for dd/mm/yyyy format
     return d.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' });
-}; [cite: 1, 2]
+};
 
 const parseDate = (dateString) => {
     if (!dateString) return null;
     const [year, month, day] = dateString.split('-').map(Number);
     return new Date(year, month - 1, day); // Month is 0-indexed
-}; [cite: 3, 4]
+};
 
 const getTodayDateString = () => {
     const today = new Date();
@@ -19,7 +19,7 @@ const getTodayDateString = () => {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-}; [cite: 5, 6, 7]
+};
 
 const formatIndianCurrency = (amount) => {
     if (isNaN(amount)) return 'N/A';
@@ -32,81 +32,81 @@ const formatIndianCurrency = (amount) => {
     } else {
         return `${sign}₹${absAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
-}; [cite: 8, 9, 10, 11, 12]
+};
 
 const calculateXIRR = (cashFlows) => {
-    if (cashFlows.length < 2) return NaN; [cite: 13]
+    if (cashFlows.length < 2) return NaN;
 
-    cashFlows.sort((a, b) => a.date.getTime() - b.date.getTime()); [cite: 14]
+    cashFlows.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-    const dates = cashFlows.map(cf => cf.date); [cite: 15]
-    const amounts = cashFlows.map(cf => cf.amount); [cite: 15]
-    const firstDate = dates[0]; [cite: 16]
+    const dates = cashFlows.map(cf => cf.date);
+    const amounts = cashFlows.map(cf => cf.amount);
+    const firstDate = dates[0];
 
     const calculateNPV = (rate) => {
-        let npv = 0; [cite: 16]
+        let npv = 0;
         for (let i = 0; i < amounts.length; i++) {
-            const days = (dates[i].getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24); [cite: 17]
-            npv += amounts[i] / Math.pow(1 + rate, days / 365); [cite: 18]
+            const days = (dates[i].getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
+            npv += amounts[i] / Math.pow(1 + rate, days / 365);
         }
-        return npv; [cite: 19]
-    }; [cite: 16]
+        return npv;
+    };
 
     const calculateDerivativeNPV = (rate) => {
-        let derivative = 0; [cite: 19]
+        let derivative = 0;
         for (let i = 0; i < amounts.length; i++) {
-            const days = (dates[i].getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24); [cite: 20]
-            derivative -= (amounts[i] * days / 365) / Math.pow(1 + rate, (days / 365) + 1); [cite: 21]
+            const days = (dates[i].getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
+            derivative -= (amounts[i] * days / 365) / Math.pow(1 + rate, (days / 365) + 1);
         }
-        return derivative; [cite: 22]
-    }; [cite: 19]
+        return derivative;
+    };
 
-    let guess = 0.1; [cite: 22]
-    const tolerance = 0.000001; [cite: 23]
-    const maxIterations = 1000; [cite: 23]
+    let guess = 0.1;
+    const tolerance = 0.000001;
+    const maxIterations = 1000;
 
-    for (let i = 0; i < maxIterations; i++) { [cite: 24]
-        const npv = calculateNPV(guess); [cite: 24]
-        const derivative = calculateDerivativeNPV(guess); [cite: 25]
+    for (let i = 0; i < maxIterations; i++) {
+        const npv = calculateNPV(guess);
+        const derivative = calculateDerivativeNPV(guess);
 
-        if (Math.abs(npv) < tolerance) { [cite: 25]
-            return guess; [cite: 25]
-        }
-
-        if (derivative === 0) { [cite: 26]
-            guess += 0.01; [cite: 26]
-            continue; [cite: 27]
+        if (Math.abs(npv) < tolerance) {
+            return guess;
         }
 
-        guess = guess - npv / derivative; [cite: 28]
+        if (derivative === 0) {
+            guess += 0.01;
+            continue;
+        }
+
+        guess = guess - npv / derivative;
     }
     return NaN; // Could not converge
-}; [cite: 13]
+};
 
 const calculateEMI = (principal, annualRate, months) => {
-    if (principal <= 0 || annualRate < 0 || months <= 0) return 0; [cite: 29]
-    const monthlyRate = annualRate / 12 / 100; [cite: 30]
-    if (monthlyRate === 0) return principal / months; [cite: 30]
-    return principal * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1); [cite: 31]
-}; [cite: 29]
+    if (principal <= 0 || annualRate < 0 || months <= 0) return 0;
+    const monthlyRate = annualRate / 12 / 100;
+    if (monthlyRate === 0) return principal / months;
+    return principal * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
+};
 
 const generateAmortizationSchedule = (principal, annualRate, months, loanStartDate) => {
-    const schedule = []; [cite: 32]
-    let remainingPrincipal = principal; [cite: 33]
-    const monthlyRate = annualRate / 12 / 100; [cite: 33]
-    const emi = calculateEMI(principal, annualRate, months); [cite: 33]
-    let currentMonthDate = new Date(loanStartDate); // Make a copy [cite: 34]
+    const schedule = [];
+    let remainingPrincipal = principal;
+    const monthlyRate = annualRate / 12 / 100;
+    const emi = calculateEMI(principal, annualRate, months);
+    let currentMonthDate = new Date(loanStartDate); // Make a copy
 
-    for (let i = 1; i <= months && remainingPrincipal > 0; i++) { [cite: 34]
-        const interestPayment = remainingPrincipal * monthlyRate; [cite: 34]
-        let principalPayment = emi - interestPayment; [cite: 35]
+    for (let i = 1; i <= months && remainingPrincipal > 0; i++) {
+        const interestPayment = remainingPrincipal * monthlyRate;
+        let principalPayment = emi - interestPayment;
 
-        if (principalPayment > remainingPrincipal) { [cite: 35]
-            principalPayment = remainingPrincipal; [cite: 35]
+        if (principalPayment > remainingPrincipal) {
+            principalPayment = remainingPrincipal;
         }
 
-        const currentEmi = interestPayment + principalPayment; [cite: 36]
-        remainingPrincipal -= principalPayment; [cite: 36]
+        const currentEmi = interestPayment + principalPayment;
+        remainingPrincipal -= principalPayment;
         schedule.push({
             month: i,
             date: new Date(currentMonthDate),
@@ -114,41 +114,41 @@ const generateAmortizationSchedule = (principal, annualRate, months, loanStartDa
             principalPaid: principalPayment,
             interestPaid: interestPayment,
             remainingBalance: remainingPrincipal < 0 ? 0 : remainingPrincipal,
-        }); [cite: 37]
+        });
 
         // Move to next month
-        currentMonthDate.setMonth(currentMonthDate.getMonth() + 1); [cite: 38]
+        currentMonthDate.setMonth(currentMonthDate.getMonth() + 1);
         // Adjust day if it skips months (e.g., Jan 31 + 1 month might become Mar 2, so set to 1st then to last day of previous month then original day)
-        if (currentMonthDate.getDate() !== loanStartDate.getDate()) { [cite: 39]
-            currentMonthDate.setDate(0); [cite: 39]
-            currentMonthDate.setDate(loanStartDate.getDate()); [cite: 40]
+        if (currentMonthDate.getDate() !== loanStartDate.getDate()) {
+            currentMonthDate.setDate(0);
+            currentMonthDate.setDate(loanStartDate.getDate());
         }
     }
-    return schedule; [cite: 41]
-}; [cite: 32]
+    return schedule;
+};
 
 const exportCashFlowsToCsv = (cashFlows) => {
-    if (!cashFlows || cashFlows.length === 0) { [cite: 42]
+    if (!cashFlows || cashFlows.length === 0) {
         // Using a custom message box instead of alert() for better UX
-        const messageBox = document.createElement('div'); [cite: 42]
-        messageBox.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50'; [cite: 43]
+        const messageBox = document.createElement('div');
+        messageBox.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50';
         messageBox.innerHTML = `
             <div class="bg-white p-6 rounded-lg shadow-xl text-center">
                 <p class="text-lg font-semibold mb-4">No cash flows to export!</p>
                 <button id="closeMessageBox" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">OK</button>
             </div>
-        `; [cite: 44]
-        document.body.appendChild(messageBox); [cite: 45]
-        document.getElementById('closeMessageBox').onclick = () => document.body.removeChild(messageBox); [cite: 45]
-        return; [cite: 45]
+        `;
+        document.body.appendChild(messageBox);
+        document.getElementById('closeMessageBox').onclick = () => document.body.removeChild(messageBox);
+        return;
     }
 
-    let csvContent = "\uFEFF"; // Add BOM for proper UTF-8 encoding in Excel [cite: 45, 46]
+    let csvContent = "\uFEFF"; // Add BOM for proper UTF-8 encoding in Excel
 
-    const headers = ['Date', 'Amount (INR)', 'Description']; [cite: 46]
-    csvContent += headers.join(',') + '\n'; [cite: 47]
+    const headers = ['Date', 'Amount (INR)', 'Description'];
+    csvContent += headers.join(',') + '\n';
 
-    cashFlows.forEach(cf => { [cite: 47]
+    cashFlows.forEach(cf => {
         const row = [
             cf.date, // Already formatted as dd/mm/yyyy string from formatDate
             cf.amount.toFixed(2), // Use raw number, fixed to 2 decimal places for consistency
@@ -159,7 +159,7 @@ const exportCashFlowsToCsv = (cashFlows) => {
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    if (link.download !== undefined) { // feature detection [cite: 48]
+    if (link.download !== undefined) { // feature detection
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
         link.setAttribute('download', 'cash_flows.csv');
@@ -169,63 +169,63 @@ const exportCashFlowsToCsv = (cashFlows) => {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     }
-}; [cite: 42]
+};
 
-// --- Global State Variables (Replacing React's useState) --- [cite: 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70]
-let purchaseDate = ''; [cite: 49]
-let purchasePrice = ''; [cite: 49]
+// --- Global State Variables ---
+let purchaseDate = '';
+let purchasePrice = '';
 
-let loanTaken = 'no'; [cite: 49, 50]
-let loanPrincipal = ''; [cite: 50]
-let loanAnnualRate = ''; [cite: 50]
-let loanStartDate = ''; [cite: 50]
-let loanTermMonths = ''; [cite: 51]
-let loanStatus = 'running'; // 'closed' or 'running' [cite: 51]
-let loanEndDate = ''; [cite: 52]
-let isLoanEndDateToday = false; [cite: 53]
+let loanTaken = 'no';
+let loanPrincipal = '';
+let loanAnnualRate = '';
+let loanStartDate = '';
+let loanTermMonths = '';
+let loanStatus = 'running'; // 'closed' or 'running'
+let loanEndDate = '';
+let isLoanEndDateToday = false;
 
-let hasRentalIncome = 'no'; [cite: 54, 55]
-let rentalAmount = ''; [cite: 55]
-let rentalStartDate = ''; [cite: 55]
-let rentalEndDate = ''; [cite: 55]
-let rentalType = 'received'; [cite: 56]
-let isRentalEndDateToday = false; [cite: 56]
-let rentIncreaseType = 'none'; [cite: 56, 57]
-let rentIncreaseValue = ''; [cite: 57]
+let hasRentalIncome = 'no';
+let rentalAmount = '';
+let rentalStartDate = '';
+let rentalEndDate = '';
+let rentalType = 'received';
+let isRentalEndDateToday = false;
+let rentIncreaseType = 'none';
+let rentIncreaseValue = '';
 
-let hasRecurringExpenses = 'no'; [cite: 58]
-let recurringExpenseAmount = ''; [cite: 58]
-let recurringExpenseFrequency = 'monthly'; [cite: 59]
-let recurringExpenseStartDate = ''; [cite: 59]
-let recurringExpenseEndDate = ''; [cite: 59]
+let hasRecurringExpenses = 'no';
+let recurringExpenseAmount = '';
+let recurringExpenseFrequency = 'monthly';
+let recurringExpenseStartDate = '';
+let recurringExpenseEndDate = '';
 
-let saleDate = ''; [cite: 60]
-let salePrice = ''; [cite: 60]
+let saleDate = '';
+let salePrice = '';
 
-let estimatedCapitalGainsTax = ''; [cite: 61, 70]
-let inflationRate = ''; [cite: 62]
+let estimatedCapitalGainsTax = '';
+let inflationRate = '';
 
 // Results State
-let nominalProfitLoss = null; [cite: 63]
-let realProfitLoss = null; [cite: 63]
-let nominalXirrResult = null; [cite: 64]
-let realXirrResult = null; [cite: 64]
-let cashFlowsDisplay = []; [cite: 64]
-let amortizationSchedule = []; [cite: 65]
-let errorMessage = ''; [cite: 64]
+let nominalProfitLoss = null;
+let realProfitLoss = null;
+let nominalXirrResult = null;
+let realXirrResult = null;
+let cashFlowsDisplay = [];
+let amortizationSchedule = [];
+let errorMessage = '';
 
 // Summary details
-let totalSpend = 0; [cite: 65]
-let totalEarned = 0; [cite: 65]
+let totalSpend = 0;
+let totalEarned = 0;
 
-let outflowPurchasePrice = 0; [cite: 66]
-let outflowTotalEMIPaid = 0; [cite: 66]
-let outflowLoanBalanceAtSale = 0; [cite: 67]
-let outflowTotalRecurringExpenses = 0; [cite: 67]
-let outflowCapitalGainsTax = 0; [cite: 67]
+let outflowPurchasePrice = 0;
+let outflowTotalEMIPaid = 0;
+let outflowLoanBalanceAtSale = 0;
+let outflowTotalRecurringExpenses = 0;
+let outflowCapitalGainsTax = 0;
 
-let inflowSalePrice = 0; [cite: 68]
-let inflowTotalRentalIncome = 0; [cite: 69]
+let inflowSalePrice = 0;
+let inflowTotalRentalIncome = 0;
 
 // --- DOM Element References ---
 const D = {
@@ -300,7 +300,7 @@ const D = {
 // --- Helper Functions for DOM Updates and State Sync ---
 
 // Function to save all state to localStorage
-function saveState() { [cite: 76, 77, 78]
+function saveState() {
     const state = {
         purchaseDate, purchasePrice, loanTaken, loanPrincipal, loanAnnualRate, loanStartDate,
         loanTermMonths, loanStatus, loanEndDate, isLoanEndDateToday, hasRentalIncome, rentalAmount,
@@ -319,7 +319,7 @@ function saveState() { [cite: 76, 77, 78]
 }
 
 // Function to load all state from localStorage
-function loadState() { [cite: 71, 72, 73, 74, 75]
+function loadState() {
     purchaseDate = localStorage.getItem('purchaseDate') || '';
     purchasePrice = localStorage.getItem('purchasePrice') || '';
     loanTaken = localStorage.getItem('loanTaken') || 'no';
@@ -437,7 +437,7 @@ function updateRentIncreaseInputDisplay() {
     }
 }
 
-function clearErrorMessage() { [cite: 79]
+function clearErrorMessage() {
     errorMessage = '';
     D.errorMessageDiv.classList.add('hidden');
     D.errorMessageText.textContent = '';
@@ -451,313 +451,265 @@ function setAndShowError(message) {
     D.resultsSection.classList.add('hidden');
 }
 
-// --- Event Handlers ---
-
-function handleInput(event) {
-    const { id, name, value, type, checked } = event.target;
-
-    // Clear error message on any input change
-    clearErrorMessage(); [cite: 79]
-
-    switch (name || id) {
-        case 'purchaseDate': purchaseDate = value; break;
-        case 'purchasePrice': purchasePrice = value; break;
-        case 'loanTaken': loanTaken = value; break;
-        case 'loanPrincipal': loanPrincipal = value; break;
-        case 'loanAnnualRate': loanAnnualRate = value; break;
-        case 'loanStartDate': loanStartDate = value; break;
-        case 'loanTermMonths': loanTermMonths = value; break;
-        case 'loanStatus': loanStatus = value; break;
-        case 'loanEndDate': loanEndDate = value; isLoanEndDateToday = false; D.isLoanEndDateToday.checked = false; break; [cite: 82]
-        case 'isLoanEndDateToday': isLoanEndDateToday = checked; [cite: 80]
-            if (checked) { loanEndDate = getTodayDateString(); D.loanEndDate.value = loanEndDate; } [cite: 81]
-            else { loanEndDate = ''; D.loanEndDate.value = loanEndDate; } [cite: 82]
-            break;
-        case 'hasRentalIncome': hasRentalIncome = value; break;
-        case 'rentalType': rentalType = value; break;
-        case 'rentalAmount': rentalAmount = value; break;
-        case 'rentalStartDate': rentalStartDate = value; break;
-        case 'rentalEndDate': rentalEndDate = value; isRentalEndDateToday = false; D.isRentalEndDateToday.checked = false; break;
-        case 'isRentalEndDateToday': isRentalEndDateToday = checked; [cite: 82]
-            if (checked) { rentalEndDate = getTodayDateString(); D.rentalEndDate.value = rentalEndDate; } [cite: 83]
-            else { rentalEndDate = ''; D.rentalEndDate.value = rentalEndDate; } [cite: 84]
-            break;
-        case 'rentIncreaseType': rentIncreaseType = value; break;
-        case 'rentIncreaseValue': rentIncreaseValue = value; break;
-        case 'hasRecurringExpenses': hasRecurringExpenses = value; break;
-        case 'recurringExpenseAmount': recurringExpenseAmount = value; break;
-        case 'recurringExpenseFrequency': recurringExpenseFrequency = value; break;
-        case 'recurringExpenseStartDate': recurringExpenseStartDate = value; break;
-        case 'recurringExpenseEndDate': recurringExpenseEndDate = value; break;
-        case 'saleDate': saleDate = value; break;
-        case 'salePrice': salePrice = value; break;
-        case 'estimatedCapitalGainsTax': estimatedCapitalGainsTax = value; break;
-        case 'inflationRate': inflationRate = value; break;
-    }
-    saveState(); // Save state on every input change
-    updateConditionalSections(); // Update visibility of sections
-    updateRentIncreaseInputDisplay();
-}
-
 // --- Main Calculation Logic ---
-function handleCalculate() { [cite: 84]
-    clearErrorMessage(); [cite: 84, 85]
-    // Reset all results states [cite: 85]
+function handleCalculate() {
+    clearErrorMessage();
+    // Reset all results states
     nominalProfitLoss = null;
     realProfitLoss = null;
     nominalXirrResult = null;
     realXirrResult = null;
-    cashFlowsDisplay = []; [cite: 85]
-    amortizationSchedule = []; [cite: 86]
+    cashFlowsDisplay = [];
+    amortizationSchedule = [];
 
-    totalSpend = 0; [cite: 86]
-    totalEarned = 0; [cite: 86]
+    totalSpend = 0;
+    totalEarned = 0;
 
-    outflowPurchasePrice = 0; [cite: 86]
-    outflowTotalEMIPaid = 0; [cite: 87]
-    outflowLoanBalanceAtSale = 0; [cite: 87]
-    outflowTotalRecurringExpenses = 0; [cite: 87]
-    outflowCapitalGainsTax = 0; [cite: 87]
+    outflowPurchasePrice = 0;
+    outflowTotalEMIPaid = 0;
+    outflowLoanBalanceAtSale = 0;
+    outflowTotalRecurringExpenses = 0;
+    outflowCapitalGainsTax = 0;
 
-    inflowSalePrice = 0; [cite: 87]
-    inflowTotalRentalIncome = 0; [cite: 87]
+    inflowSalePrice = 0;
+    inflowTotalRentalIncome = 0;
 
 
-    const pDate = parseDate(purchaseDate); [cite: 87]
-    const pPrice = parseFloat(purchasePrice); [cite: 88]
-    const sDate = parseDate(saleDate); [cite: 88]
-    const sPrice = parseFloat(salePrice); [cite: 88]
-    const inflRate = parseFloat(inflationRate) / 100; [cite: 88]
-    const directCapitalGainsTax = parseFloat(estimatedCapitalGainsTax) || 0; [cite: 89]
+    const pDate = parseDate(purchaseDate);
+    const pPrice = parseFloat(purchasePrice);
+    const sDate = parseDate(saleDate);
+    const sPrice = parseFloat(salePrice);
+    const inflRate = parseFloat(inflationRate) / 100;
+    const directCapitalGainsTax = parseFloat(estimatedCapitalGainsTax) || 0;
 
-    // Basic validation [cite: 89]
-    if (!pDate || isNaN(pPrice) || pPrice <= 0 || !sDate || isNaN(sPrice) || sPrice <= 0) { [cite: 89]
-        setAndShowError('Please enter valid Asset Purchase Date, Purchase Price, Sale Date, and Sale Price.'); [cite: 90]
-        return; [cite: 90]
+    // Basic validation
+    if (!pDate || isNaN(pPrice) || pPrice <= 0 || !sDate || isNaN(sPrice) || sPrice <= 0) {
+        setAndShowError('Please enter valid Asset Purchase Date, Purchase Price, Sale Date, and Sale Price.');
+        return;
     }
-    if (sDate < pDate) { [cite: 90]
-        setAndShowError('Sale Date cannot be before Purchase Date.'); [cite: 91]
-        return; [cite: 91]
+    if (sDate < pDate) {
+        setAndShowError('Sale Date cannot be before Purchase Date.');
+        return;
     }
 
-    let currentCashFlows = []; // This array is for XIRR calculation [cite: 91]
-    let calculatedTotalSpend = 0; [cite: 91, 92]
-    let calculatedTotalEarned = 0; [cite: 92, 93]
-    let totalInterestPaid = 0; [cite: 93]
-    let totalEMIPaid = 0; [cite: 94]
-    let totalRentalIncome = 0; [cite: 95]
-    let totalRecurringExpenses = 0; [cite: 95]
-    let loanBalanceAtSale = 0; [cite: 95]
+    let currentCashFlows = []; // This array is for XIRR calculation
+    let calculatedTotalSpend = 0;
+    let calculatedTotalEarned = 0;
+    let totalInterestPaid = 0;
+    let totalEMIPaid = 0;
+    let totalRentalIncome = 0;
+    let totalRecurringExpenses = 0;
+    let loanBalanceAtSale = 0;
 
     // 1. Asset Purchase Cash Flow (Outflow)
-    currentCashFlows.push({ date: pDate, amount: -pPrice, description: 'Asset Purchase' }); [cite: 96]
-    calculatedTotalSpend += pPrice; [cite: 97]
-    outflowPurchasePrice = pPrice; [cite: 97, 98]
+    currentCashFlows.push({ date: pDate, amount: -pPrice, description: 'Asset Purchase' });
+    calculatedTotalSpend += pPrice;
+    outflowPurchasePrice = pPrice;
 
-    // 2. Loan Cash Flows (if loan taken) [cite: 98]
-    if (loanTaken === 'yes') { [cite: 98]
-        const loanP = parseFloat(loanPrincipal); [cite: 98, 99]
-        const loanRate = parseFloat(loanAnnualRate); [cite: 99]
-        const loanSDate = parseDate(loanStartDate); [cite: 99]
-        const loanTM = parseInt(loanTermMonths, 10); [cite: 99]
-        const loanEDate = parseDate(loanEndDate); [cite: 99]
+    // 2. Loan Cash Flows (if loan taken)
+    if (loanTaken === 'yes') {
+        const loanP = parseFloat(loanPrincipal);
+        const loanRate = parseFloat(loanAnnualRate);
+        const loanSDate = parseDate(loanStartDate);
+        const loanTM = parseInt(loanTermMonths, 10);
+        const loanEDate = parseDate(loanEndDate);
 
-        if (!loanSDate || isNaN(loanP) || loanP <= 0 || isNaN(loanRate) || loanRate < 0 || isNaN(loanTM) || loanTM <= 0) { [cite: 100]
-            setAndShowError('Please enter valid Loan Principal, Annual Interest Rate, Loan Start Date, and Loan Term (Months).'); [cite: 101]
-            return; [cite: 101]
+        if (!loanSDate || isNaN(loanP) || loanP <= 0 || isNaN(loanRate) || loanRate < 0 || isNaN(loanTM) || loanTM <= 0) {
+            setAndShowError('Please enter valid Loan Principal, Annual Interest Rate, Loan Start Date, and Loan Term (Months).');
+            return;
         }
-        if (loanStatus === 'closed' && (!loanEDate || loanEDate < loanSDate)) { [cite: 101]
-            setAndShowError('Please enter a valid Loan End Date if the loan is closed.'); [cite: 102]
-            return; [cite: 102]
+        if (loanStatus === 'closed' && (!loanEDate || loanEDate < loanSDate)) {
+            setAndShowError('Please enter a valid Loan End Date if the loan is closed.');
+            return;
         }
-        if (loanSDate < pDate) { [cite: 102]
-            setAndShowError('Loan Start Date cannot be before Asset Purchase Date.'); [cite: 103]
-            return; [cite: 103]
+        if (loanSDate < pDate) {
+            setAndShowError('Loan Start Date cannot be before Asset Purchase Date.');
+            return;
         }
 
         // Add loan principal as an inflow for XIRR calculation
-        currentCashFlows.push({ date: loanSDate, amount: loanP, description: 'Loan Disbursed (Inflow)' }); [cite: 103, 104]
-        const monthlyEMI = calculateEMI(loanP, loanRate, loanTM); [cite: 104]
-        let remainingPrincipal = loanP; [cite: 104]
-        let currentDateIterator = new Date(loanSDate); [cite: 104, 105]
-        let loanEndEffectiveDate = loanStatus === 'closed' ? loanEDate : sDate; [cite: 105]
+        currentCashFlows.push({ date: loanSDate, amount: loanP, description: 'Loan Disbursed (Inflow)' });
+        const monthlyEMI = calculateEMI(loanP, loanRate, loanTM);
+        let remainingPrincipal = loanP;
+        let currentDateIterator = new Date(loanSDate);
+        let loanEndEffectiveDate = loanStatus === 'closed' ? loanEDate : sDate;
 
         // Generate Amortization Schedule
-        const amortSchedule = generateAmortizationSchedule(loanP, loanRate, loanTM, loanSDate); [cite: 106]
-        const filteredAmortSchedule = amortSchedule.filter(item => item.date <= loanEndEffectiveDate); [cite: 107]
-        amortizationSchedule = filteredAmortSchedule; // Set global state [cite: 108]
+        const amortSchedule = generateAmortizationSchedule(loanP, loanRate, loanTM, loanSDate);
+        const filteredAmortSchedule = amortSchedule.filter(item => item.date <= loanEndEffectiveDate);
+        amortizationSchedule = filteredAmortSchedule; // Set global state
 
 
         // Iterate through months to calculate EMIs and interest for cash flows
-        while (currentDateIterator <= loanEndEffectiveDate && remainingPrincipal > 0) { [cite: 108]
-            const monthlyInterestRate = loanRate / 12 / 100; [cite: 108]
-            const interestForMonth = remainingPrincipal * monthlyInterestRate; [cite: 109]
-            const principalPaidThisMonth = monthlyEMI - interestForMonth; [cite: 109]
+        while (currentDateIterator <= loanEndEffectiveDate && remainingPrincipal > 0) {
+            const monthlyInterestRate = loanRate / 12 / 100;
+            const interestForMonth = remainingPrincipal * monthlyInterestRate;
+            const principalPaidThisMonth = monthlyEMI - interestForMonth;
 
-            const paymentAmount = Math.min(monthlyEMI, remainingPrincipal + interestForMonth); [cite: 109, 110]
+            const paymentAmount = Math.min(monthlyEMI, remainingPrincipal + interestForMonth);
 
-            if (paymentAmount > 0) { [cite: 110]
-                currentCashFlows.push({ date: new Date(currentDateIterator), amount: -paymentAmount, description: `EMI (${formatDate(currentDateIterator)})` }); [cite: 110]
-                totalEMIPaid += paymentAmount; [cite: 111]
-                totalInterestPaid += interestForMonth; // Keep this for amortization display [cite: 111]
-                remainingPrincipal -= principalPaidThisMonth; [cite: 111]
-                calculatedTotalSpend += paymentAmount; [cite: 112]
+            if (paymentAmount > 0) {
+                currentCashFlows.push({ date: new Date(currentDateIterator), amount: -paymentAmount, description: `EMI (${formatDate(currentDateIterator)})` });
+                totalEMIPaid += paymentAmount;
+                totalInterestPaid += interestForMonth; // Keep this for amortization display
+                remainingPrincipal -= principalPaidThisMonth;
+                calculatedTotalSpend += paymentAmount;
             }
 
             // Move to the next month
-            currentDateIterator.setMonth(currentDateIterator.getMonth() + 1); [cite: 112]
+            currentDateIterator.setMonth(currentDateIterator.getMonth() + 1);
             // Handle month end issues
-            if (currentDateIterator.getDate() !== loanSDate.getDate()) { [cite: 113]
-                currentDateIterator.setDate(0); [cite: 113]
-                currentDateIterator.setDate(loanSDate.getDate()); [cite: 114]
+            if (currentDateIterator.getDate() !== loanSDate.getDate()) {
+                currentDateIterator.setDate(0);
+                currentDateIterator.setDate(loanSDate.getDate());
             }
         }
-        outflowTotalEMIPaid = totalEMIPaid; [cite: 115, 116]
+        outflowTotalEMIPaid = totalEMIPaid;
 
         // Handle remaining principal payment for both closed and running loans scenarios
-        if (remainingPrincipal > 0) { [cite: 116]
-            const paymentDate = loanStatus === 'closed' ? loanEDate : sDate; [cite: 116, 117]
-            loanBalanceAtSale = remainingPrincipal; [cite: 117]
-            currentCashFlows.push({ date: paymentDate, amount: -loanBalanceAtSale, description: `Loan Balance Paid (${loanStatus === 'closed' ? 'Closed Early' : 'at Sale'})` }); [cite: 117, 118]
-            calculatedTotalSpend += loanBalanceAtSale; [cite: 118]
-            outflowLoanBalanceAtSale = loanBalanceAtSale; [cite: 118, 119]
+        if (remainingPrincipal > 0) {
+            const paymentDate = loanStatus === 'closed' ? loanEDate : sDate;
+            loanBalanceAtSale = remainingPrincipal;
+            currentCashFlows.push({ date: paymentDate, amount: -loanBalanceAtSale, description: `Loan Balance Paid (${loanStatus === 'closed' ? 'Closed Early' : 'at Sale'})` });
+            calculatedTotalSpend += loanBalanceAtSale;
+            outflowLoanBalanceAtSale = loanBalanceAtSale;
         }
     }
 
-    // 3. Rental/Saved Rent Cash Flows (if applicable) [cite: 119]
-    if (hasRentalIncome === 'yes') { [cite: 119]
-        const rAmount = parseFloat(rentalAmount); [cite: 119, 120]
-        const rSDate = parseDate(rentalStartDate); [cite: 120]
-        const rEDate = parseDate(rentalEndDate); [cite: 120]
-        const rIncreaseVal = parseFloat(rentIncreaseValue); [cite: 120, 121]
+    // 3. Rental/Saved Rent Cash Flows (if applicable)
+    if (hasRentalIncome === 'yes') {
+        const rAmount = parseFloat(rentalAmount);
+        const rSDate = parseDate(rentalStartDate);
+        const rEDate = parseDate(rentalEndDate);
+        const rIncreaseVal = parseFloat(rentIncreaseValue);
 
-        if (!rSDate || isNaN(rAmount) || rAmount <= 0 || !rEDate) { [cite: 121]
-            setAndShowError('Please enter valid Rental Amount, Rental Start Date, and Rental End Date.'); [cite: 122]
-            return; [cite: 122]
+        if (!rSDate || isNaN(rAmount) || rAmount <= 0 || !rEDate) {
+            setAndShowError('Please enter valid Rental Amount, Rental Start Date, and Rental End Date.');
+            return;
         }
-        if (rEDate < rSDate) { [cite: 122]
-            setAndShowError('Rental End Date cannot be before Rental Start Date.'); [cite: 123]
-            return; [cite: 123]
+        if (rEDate < rSDate) {
+            setAndShowError('Rental End Date cannot be before Rental Start Date.');
+            return;
         }
-        if (rSDate < pDate) { [cite: 123]
-            setAndShowError('Rental Start Date cannot be before Asset Purchase Date.'); [cite: 124]
-            return; [cite: 124]
+        if (rSDate < pDate) {
+            setAndShowError('Rental Start Date cannot be before Asset Purchase Date.');
+            return;
         }
-        if (rentIncreaseType !== 'none' && (isNaN(rIncreaseVal) || rIncreaseVal < 0)) { [cite: 124]
-            setAndShowError('Please enter a valid positive value for Rent Increase.'); [cite: 125]
-            return; [cite: 125]
+        if (rentIncreaseType !== 'none' && (isNaN(rIncreaseVal) || rIncreaseVal < 0)) {
+            setAndShowError('Please enter a valid positive value for Rent Increase.');
+            return;
         }
 
-        let currentRentalDate = new Date(rSDate); [cite: 125]
-        let effectiveMonthlyRent = rAmount; [cite: 126]
-        let lastIncreaseYear = currentRentalDate.getFullYear(); [cite: 126]
+        let currentRentalDate = new Date(rSDate);
+        let effectiveMonthlyRent = rAmount;
+        let lastIncreaseYear = currentRentalDate.getFullYear();
 
-        while (currentRentalDate <= rEDate) { [cite: 126]
-            if (rentIncreaseType !== 'none' && currentRentalDate.getFullYear() > lastIncreaseYear) { [cite: 126]
-                if (rentIncreaseType === 'amount') { [cite: 127]
-                    effectiveMonthlyRent += rIncreaseVal; [cite: 127]
-                } else if (rentIncreaseType === 'percent') { [cite: 127]
-                    effectiveMonthlyRent *= (1 + rIncreaseVal / 100); [cite: 128]
+        while (currentRentalDate <= rEDate) {
+            if (rentIncreaseType !== 'none' && currentRentalDate.getFullYear() > lastIncreaseYear) {
+                if (rentIncreaseType === 'amount') {
+                    effectiveMonthlyRent += rIncreaseVal;
+                } else if (rentIncreaseType === 'percent') {
+                    effectiveMonthlyRent *= (1 + rIncreaseVal / 100);
                 }
-                lastIncreaseYear = currentRentalDate.getFullYear(); [cite: 129]
+                lastIncreaseYear = currentRentalDate.getFullYear();
             }
 
-            const amount = rentalType === 'received' ? effectiveMonthlyRent : effectiveMonthlyRent; [cite: 129, 130]
-            currentCashFlows.push({ date: new Date(currentRentalDate), amount: amount, description: `${rentalType === 'received' ? 'Rent Received' : 'Rent Saved'} (${formatDate(currentRentalDate)})` }); [cite: 130, 131]
-            totalRentalIncome += amount; [cite: 131]
-            calculatedTotalEarned += amount; [cite: 131]
+            const amount = rentalType === 'received' ? effectiveMonthlyRent : effectiveMonthlyRent;
+            currentCashFlows.push({ date: new Date(currentRentalDate), amount: amount, description: `${rentalType === 'received' ? 'Rent Received' : 'Rent Saved'} (${formatDate(currentRentalDate)})` });
+            totalRentalIncome += amount;
+            calculatedTotalEarned += amount;
 
-            currentRentalDate.setMonth(currentRentalDate.getMonth() + 1); [cite: 131]
-            if (currentRentalDate.getDate() !== rSDate.getDate()) { [cite: 132]
-                currentRentalDate.setDate(0); [cite: 132]
-                currentRentalDate.setDate(rSDate.getDate()); [cite: 132]
+            currentRentalDate.setMonth(currentRentalDate.getMonth() + 1);
+            if (currentRentalDate.getDate() !== rSDate.getDate()) {
+                currentRentalDate.setDate(0);
+                currentRentalDate.setDate(rSDate.getDate());
             }
         }
-        inflowTotalRentalIncome = totalRentalIncome; [cite: 133]
+        inflowTotalRentalIncome = totalRentalIncome;
     }
 
-    // 4. Recurring Expenses (if applicable) [cite: 133]
-    if (hasRecurringExpenses === 'yes') { [cite: 133]
-        const rExpAmount = parseFloat(recurringExpenseAmount); [cite: 134]
-        const rExpSDate = parseDate(recurringExpenseStartDate); [cite: 134]
-        const rExpEDate = parseDate(recurringExpenseEndDate); [cite: 134]
+    // 4. Recurring Expenses (if applicable)
+    if (hasRecurringExpenses === 'yes') {
+        const rExpAmount = parseFloat(recurringExpenseAmount);
+        const rExpSDate = parseDate(recurringExpenseStartDate);
+        const rExpEDate = parseDate(recurringExpenseEndDate);
 
-        if (!rExpSDate || isNaN(rExpAmount) || rExpAmount <= 0 || !rExpEDate) { [cite: 134]
-            setAndShowError('Please enter valid Recurring Expense Amount, Start Date, and End Date.'); [cite: 135]
-            return; [cite: 135]
+        if (!rExpSDate || isNaN(rExpAmount) || rExpAmount <= 0 || !rExpEDate) {
+            setAndShowError('Please enter valid Recurring Expense Amount, Start Date, and End Date.');
+            return;
         }
-        if (rExpEDate < rExpSDate) { [cite: 135]
-            setAndShowError('Recurring Expense End Date cannot be before Start Date.'); [cite: 136]
-            return; [cite: 136]
+        if (rExpEDate < rExpSDate) {
+            setAndShowError('Recurring Expense End Date cannot be before Start Date.');
+            return;
         }
-        if (rExpSDate < pDate) { [cite: 136]
-            setAndShowError('Recurring Expense Start Date cannot be before Asset Purchase Date.'); [cite: 137]
-            return; [cite: 137]
+        if (rExpSDate < pDate) {
+            setAndShowError('Recurring Expense Start Date cannot be before Asset Purchase Date.');
+            return;
         }
 
-        let currentExpDate = new Date(rExpSDate); [cite: 137]
-        let totalRecurringExpensesCalc = 0; [cite: 138]
-        while (currentExpDate <= rExpEDate) { [cite: 138]
-            let amountToAdd = rExpAmount; [cite: 138]
-            currentCashFlows.push({ date: new Date(currentExpDate), amount: -amountToAdd, description: `Recurring Expense (${formatDate(currentExpDate)})` }); [cite: 139]
-            totalRecurringExpensesCalc += amountToAdd; [cite: 139]
-            calculatedTotalSpend += amountToAdd; [cite: 139]
+        let currentExpDate = new Date(rExpSDate);
+        let totalRecurringExpensesCalc = 0;
+        while (currentExpDate <= rExpEDate) {
+            let amountToAdd = rExpAmount;
+            currentCashFlows.push({ date: new Date(currentExpDate), amount: -amountToAdd, description: `Recurring Expense (${formatDate(currentExpDate)})` });
+            totalRecurringExpensesCalc += amountToAdd;
+            calculatedTotalSpend += amountToAdd;
 
-            if (recurringExpenseFrequency === 'monthly') { [cite: 140]
-                currentExpDate.setMonth(currentExpDate.getMonth() + 1); [cite: 141]
-            } else { // Annually [cite: 141]
-                currentExpDate.setFullYear(currentExpDate.getFullYear() + 1); [cite: 141, 142]
+            if (recurringExpenseFrequency === 'monthly') {
+                currentExpDate.setMonth(currentExpDate.getMonth() + 1);
+            } else { // Annually
+                currentExpDate.setFullYear(currentExpDate.getFullYear() + 1);
             }
-            if (currentExpDate.getDate() !== rExpSDate.getDate()) { [cite: 142]
-                currentExpDate.setDate(0); [cite: 143]
-                currentExpDate.setDate(rExpSDate.getDate()); [cite: 143]
+            if (currentExpDate.getDate() !== rExpSDate.getDate()) {
+                currentExpDate.setDate(0);
+                currentExpDate.setDate(rExpSDate.getDate());
             }
         }
-        outflowTotalRecurringExpenses = totalRecurringExpensesCalc; [cite: 144]
+        outflowTotalRecurringExpenses = totalRecurringExpensesCalc;
     }
 
-    // 5. Asset Sale Cash Flow (Inflow) [cite: 144]
-    currentCashFlows.push({ date: sDate, amount: sPrice, description: 'Asset Sale' }); [cite: 145]
-    calculatedTotalEarned += sPrice; [cite: 145]
-    inflowSalePrice = sPrice; [cite: 146]
+    // 5. Asset Sale Cash Flow (Inflow)
+    currentCashFlows.push({ date: sDate, amount: sPrice, description: 'Asset Sale' });
+    calculatedTotalEarned += sPrice;
+    inflowSalePrice = sPrice;
 
-    // 6. Direct Capital Gains Tax (from user input) [cite: 146]
-    if (directCapitalGainsTax > 0) { [cite: 146]
-        currentCashFlows.push({ date: sDate, amount: -directCapitalGainsTax, description: 'Estimated Capital Gains Tax' }); [cite: 147]
-        calculatedTotalSpend += directCapitalGainsTax; [cite: 147]
-        outflowCapitalGainsTax = directCapitalGainsTax; [cite: 147]
+    // 6. Direct Capital Gains Tax (from user input)
+    if (directCapitalGainsTax > 0) {
+        currentCashFlows.push({ date: sDate, amount: -directCapitalGainsTax, description: 'Estimated Capital Gains Tax' });
+        calculatedTotalSpend += directCapitalGainsTax;
+        outflowCapitalGainsTax = directCapitalGainsTax;
     }
 
     // Calculate Total Profit/Loss (Nominal)
-    nominalProfitLoss = calculatedTotalEarned - calculatedTotalSpend; [cite: 147, 148]
+    nominalProfitLoss = calculatedTotalEarned - calculatedTotalSpend;
 
     // Calculate XIRR (Nominal)
-    nominalXirrResult = calculateXIRR(currentCashFlows); [cite: 148]
+    nominalXirrResult = calculateXIRR(currentCashFlows);
 
-    // Calculate Real Profit/Loss and Real XIRR [cite: 149]
-    if (!isNaN(inflRate) && inflRate >= 0) { [cite: 149]
-        const holdingPeriodYears = (sDate.getTime() - pDate.getTime()) / (1000 * 60 * 60 * 24 * 365); [cite: 152, 153]
-        realProfitLoss = nominalProfitLoss / Math.pow(1 + inflRate, holdingPeriodYears); [cite: 153]
+    // Calculate Real Profit/Loss and Real XIRR
+    if (!isNaN(inflRate) && inflRate >= 0) {
+        const holdingPeriodYears = (sDate.getTime() - pDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+        realProfitLoss = nominalProfitLoss / Math.pow(1 + inflRate, holdingPeriodYears);
 
-        if (!isNaN(nominalXirrResult) && nominalXirrResult !== -1) { [cite: 154]
-            realXirrResult = (1 + nominalXirrResult) / (1 + inflRate) - 1; [cite: 154, 155]
+        if (!isNaN(nominalXirrResult) && nominalXirrResult !== -1) {
+            realXirrResult = (1 + nominalXirrResult) / (1 + inflRate) - 1;
         } else {
-            realXirrResult = NaN; [cite: 156]
+            realXirrResult = NaN;
         }
     } else {
-        realProfitLoss = NaN; [cite: 157]
-        realXirrResult = NaN; [cite: 157]
+        realProfitLoss = NaN;
+        realXirrResult = NaN;
     }
 
     // Set summary details
-    totalSpend = calculatedTotalSpend; [cite: 157]
-    totalEarned = calculatedTotalEarned; [cite: 158]
+    totalSpend = calculatedTotalSpend;
+    totalEarned = calculatedTotalEarned;
 
-    // Format cash flows for display (after all calculations are done with Date objects) [cite: 158]
+    // Format cash flows for display (after all calculations are done with Date objects)
     cashFlowsDisplay = currentCashFlows.map(cf => ({
         ...cf,
         date: formatDate(cf.date)
-    })); [cite: 158]
+    }));
 
     renderResults(); // Update the results section in the DOM
 }
@@ -832,46 +784,46 @@ function renderResults() {
     if (realProfitLoss >= 0) { D.realProfitLossDisplay.classList.remove('text-red-600'); D.realProfitLossDisplay.classList.add('text-green-600'); }
     else { D.realProfitLossDisplay.classList.remove('text-green-600'); D.realProfitLossDisplay.classList.add('text-red-600'); }
 
-    D.nominalXirrResultDisplay.textContent = nominalXirrResult !== null && !isNaN(nominalXirrResult) ? `${(nominalXirrResult * 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%` : 'N/A'; [cite: 291]
-    D.realXirrResultDisplay.textContent = realXirrResult !== null && !isNaN(realXirrResult) ? `${(realXirrResult * 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%` : 'N/A'; [cite: 292, 293]
+    D.nominalXirrResultDisplay.textContent = nominalXirrResult !== null && !isNaN(nominalXirrResult) ? `${(nominalXirrResult * 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%` : 'N/A';
+    D.realXirrResultDisplay.textContent = realXirrResult !== null && !isNaN(realXirrResult) ? `${(realXirrResult * 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%` : 'N/A';
 
     // Amortization Schedule
     if (amortizationSchedule.length > 0) {
         D.amortizationScheduleSection.classList.remove('hidden');
         D.amortizationScheduleBody.innerHTML = '';
-        amortizationSchedule.forEach((item, index) => { [cite: 297]
-            const row = document.createElement('tr'); [cite: 298]
-            row.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50'; [cite: 299]
+        amortizationSchedule.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50';
             row.innerHTML = `
-                <td class="px-3 py-2 text-xs text-gray-800">${item.month}</td> [cite: 299]
-                <td class="px-3 py-2 text-xs text-gray-800">${formatDate(item.date)}</td> [cite: 299]
-                <td class="px-3 py-2 text-right text-xs text-gray-800">${item.emi.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td> [cite: 299, 300]
-                <td class="px-3 py-2 text-right text-xs text-gray-800">${item.principalPaid.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td> [cite: 300]
-                <td class="px-3 py-2 text-right text-xs text-gray-800">${item.interestPaid.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td> [cite: 300]
-                <td class="px-3 py-2 text-right text-xs text-gray-800">${item.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td> [cite: 301]
+                <td class="px-3 py-2 text-xs text-gray-800">${item.month}</td>
+                <td class="px-3 py-2 text-xs text-gray-800">${formatDate(item.date)}</td>
+                <td class="px-3 py-2 text-right text-xs text-gray-800">${item.emi.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td class="px-3 py-2 text-right text-xs text-gray-800">${item.principalPaid.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td class="px-3 py-2 text-right text-xs text-gray-800">${item.interestPaid.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td class="px-3 py-2 text-right text-xs text-gray-800">${item.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             `;
-            D.amortizationScheduleBody.appendChild(row); [cite: 301]
+            D.amortizationScheduleBody.appendChild(row);
         });
     } else {
-        D.amortizationScheduleSection.classList.add('hidden'); [cite: 302]
+        D.amortizationScheduleSection.classList.add('hidden');
     }
 
     // Cash Flows Display
-    if (cashFlowsDisplay.length > 0) { [cite: 302]
-        D.cashFlowsSection.classList.remove('hidden'); [cite: 302]
-        D.cashFlowsTableBody.innerHTML = ''; [cite: 303]
-        cashFlowsDisplay.forEach((cf, index) => { [cite: 307]
-            const row = document.createElement('tr'); [cite: 307]
-            row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50'; [cite: 308]
+    if (cashFlowsDisplay.length > 0) {
+        D.cashFlowsSection.classList.remove('hidden');
+        D.cashFlowsTableBody.innerHTML = '';
+        cashFlowsDisplay.forEach((cf, index) => {
+            const row = document.createElement('tr');
+            row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
             row.innerHTML = `
-                <td class="px-4 py-2 text-sm text-gray-800">${cf.date}</td> [cite: 308]
-                <td class="px-4 py-2 text-sm text-gray-800">${formatIndianCurrency(cf.amount)}</td> [cite: 308, 309]
-                <td class="px-4 py-2 text-sm text-gray-800">${cf.description}</td> [cite: 309]
+                <td class="px-4 py-2 text-sm text-gray-800">${cf.date}</td>
+                <td class="px-4 py-2 text-sm text-gray-800">${formatIndianCurrency(cf.amount)}</td>
+                <td class="px-4 py-2 text-sm text-gray-800">${cf.description}</td>
             `;
-            D.cashFlowsTableBody.appendChild(row); [cite: 310]
+            D.cashFlowsTableBody.appendChild(row);
         });
     } else {
-        D.cashFlowsSection.classList.add('hidden'); [cite: 310]
+        D.cashFlowsSection.classList.add('hidden');
     }
 }
 
@@ -892,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     D.calculateButton.addEventListener('click', handleCalculate);
-    D.exportCsvButton.addEventListener('click', () => exportCashFlowsToCsv(cashFlowsDisplay)); // Pass the global display array [cite: 303, 304]
+    D.exportCsvButton.addEventListener('click', () => exportCashFlowsToCsv(cashFlowsDisplay)); // Pass the global display array
 
     // Listeners for radio buttons to update sections immediately
     document.querySelectorAll('input[name="loanTaken"]').forEach(radio => {
