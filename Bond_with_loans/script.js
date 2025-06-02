@@ -488,14 +488,15 @@ document.getElementById('runSimulationBtn').addEventListener('click', () => {
     const finalTdsAmount = finalBondInterestIncome * tdsRate;
     const finalPostTdsBondInterest = finalBondInterestIncome - finalTdsAmount;
 
-    // Net cash flow at maturity for Post-TDS
-    const netCashFlowAtMaturityPostTDS = bondPrincipalReceived + finalPostTdsBondInterest - outstandingLoanPrincipalAtMaturity;
-    cashFlowsForPostTdsIrr.push(netCashFlowAtMaturityPostTDS);
+    // --- First entry at maturity: Bond Interest Credited ---
+    // Net cash flow for bond interest received (Post-TDS)
+    const netCashFlowMaturityBondInterestPostTDS = finalPostTdsBondInterest;
+    cashFlowsForPostTdsIrr.push(netCashFlowMaturityBondInterestPostTDS);
     datesForPostTdsIrr.push(bondMaturityDate);
 
-    // Net cash flow at maturity for Pre-TDS
-    const netCashFlowAtMaturityPreTDS = bondPrincipalReceived + finalBondInterestIncome - outstandingLoanPrincipalAtMaturity;
-    cashFlowsForPreTdsIrr.push(netCashFlowAtMaturityPreTDS);
+    // Net cash flow for bond interest received (Pre-TDS)
+    const netCashFlowMaturityBondInterestPreTDS = finalBondInterestIncome;
+    cashFlowsForPreTdsIrr.push(netCashFlowMaturityBondInterestPreTDS);
     datesForPreTdsIrr.push(bondMaturityDate);
 
     currentSimulationData.cashFlows.push({
@@ -503,12 +504,36 @@ document.getElementById('runSimulationBtn').addEventListener('click', () => {
         'Bond Interest Credited': finalBondInterestIncome,
         'TDS on Bond Interest': finalTdsAmount,
         'Post-TDS Bond Interest': finalPostTdsBondInterest,
+        'EMI Paid': 0.0, // No EMI here
+        'Loan Interest Paid': 0.0,
+        'Loan Principal Paid': 0.0,
+        'Loan Outstanding': Math.max(0, currentLoanPrincipal), // Loan outstanding remains same before principal payment
+        'Net Cash Flow (Post-TDS)': netCashFlowMaturityBondInterestPostTDS,
+        'Net Cash Flow (Pre-TDS)': netCashFlowMaturityBondInterestPreTDS
+    });
+
+    // --- Second entry at maturity: Bond Principal Received & Loan Principal Paid ---
+    // Net cash flow for bond principal received and loan principal paid (Post-TDS)
+    const netCashFlowMaturityPrincipalPostTDS = bondPrincipalReceived - outstandingLoanPrincipalAtMaturity;
+    cashFlowsForPostTdsIrr.push(netCashFlowMaturityPrincipalPostTDS);
+    datesForPostTdsIrr.push(bondMaturityDate);
+
+    // Net cash flow for bond principal received and loan principal paid (Pre-TDS)
+    const netCashFlowMaturityPrincipalPreTDS = bondPrincipalReceived - outstandingLoanPrincipalAtMaturity;
+    cashFlowsForPreTdsIrr.push(netCashFlowMaturityPrincipalPreTDS);
+    datesForPreTdsIrr.push(bondMaturityDate);
+
+    currentSimulationData.cashFlows.push({
+        'Date': formatDate(bondMaturityDate),
+        'Bond Interest Credited': 0.0, // No interest credited in this entry
+        'TDS on Bond Interest': 0.0,
+        'Post-TDS Bond Interest': 0.0,
         'EMI Paid': outstandingLoanPrincipalAtMaturity, // This is the lump-sum repayment
         'Loan Interest Paid': finalLoanInterestPaid,
         'Loan Principal Paid': finalLoanPrincipalPaid,
-        'Loan Outstanding': 0.0,
-        'Net Cash Flow (Post-TDS)': netCashFlowAtMaturityPostTDS,
-        'Net Cash Flow (Pre-TDS)': netCashFlowAtMaturityPreTDS
+        'Loan Outstanding': 0.0, // Loan is cleared
+        'Net Cash Flow (Post-TDS)': netCashFlowMaturityPrincipalPostTDS,
+        'Net Cash Flow (Pre-TDS)': netCashFlowMaturityPrincipalPreTDS
     });
 
     // Calculate Running Future Values for Market Comparison (using ABSOLUTE values)
