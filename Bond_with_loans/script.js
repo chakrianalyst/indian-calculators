@@ -4,7 +4,7 @@ function parseDate(dateString) {
     return new Date(year, month - 1, day); // Month is 0-indexed in Date constructor
 }
 
-// Helper function to format Date objects to YYYY-MM-DD
+// Helper function to format Date objects toYYYY-MM-DD
 function formatDate(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -399,13 +399,8 @@ document.getElementById('runSimulationBtn').addEventListener('click', () => {
     let currentLoanPrincipal = loanAmount;
     let paymentsMadeCount = 0;
     
-    // Loop until current_date exceeds bond_maturity_date
-    while (currentDate.getTime() <= bondMaturityDate.getTime()) {
-        // If it's the maturity date, handle it in the final section
-        if (currentDate.getTime() === bondMaturityDate.getTime()) {
-            break; 
-        }
-
+    // Loop for monthly payments, stopping just before maturity date
+    while (currentDate.getTime() < bondMaturityDate.getTime()) {
         const daysForBondInterest = (currentDate.getTime() - previousBondPaymentDate.getTime()) / (1000 * 60 * 60 * 24);
         const monthlyBondInterestIncome = dailyBondInterest * daysForBondInterest;
         
@@ -446,7 +441,6 @@ document.getElementById('runSimulationBtn').addEventListener('click', () => {
         });
 
         // Move to the next payment date (e.g., 4th of next month)
-        // This logic ensures the next date is the same day of the subsequent month.
         let nextMonth = currentDate.getMonth() + 1; // 0-indexed month
         let nextYear = currentDate.getFullYear();
         let nextDay = currentDate.getDate(); // Keep the same day
@@ -458,9 +452,6 @@ document.getElementById('runSimulationBtn').addEventListener('click', () => {
         currentDate = new Date(nextYear, nextMonth, nextDay);
 
         // Handle cases where the day might not exist in the next month (e.g., Feb 30th)
-        // If the day rolls over due to short month, it will be corrected by Date constructor
-        // Example: new Date(2025, 1, 30) -> March 1, 2025. We want Feb 28/29.
-        // Re-adjust to the last day of the month if the original day is too high for next month
         const lastDayOfNextMonth = new Date(nextYear, nextMonth + 1, 0).getDate();
         if (nextDay > lastDayOfNextMonth) {
             currentDate = new Date(nextYear, nextMonth, lastDayOfNextMonth);
@@ -468,35 +459,45 @@ document.getElementById('runSimulationBtn').addEventListener('click', () => {
     }
 
     // --- 4. Cash Flow at Bond Maturity & Loan Closure ---
-    let outstandingLoanPrincipalAtMaturity;
-    let finalLoanInterestPaid = 0;
-    let finalLoanPrincipalPaid = 0;
 
-    const remainingPayments = loanTenureMonths - paymentsMadeCount;
-    if (remainingPayments > 0) {
-        outstandingLoanPrincipalAtMaturity = currentLoanPrincipal; 
-        finalLoanPrincipalPaid = outstandingLoanPrincipalAtMaturity;
-    } else {
-        outstandingLoanPrincipalAtMaturity = 0;
+    let outstandingLoanPrincipalAtMaturity = currentLoanPrincipal;
+    const bondPrincipalReceived = numBonds * bondFaceValuePerBond;
+    
+    // --- First entry at maturity: EMI deduction (if applicable) and Bond Interest Credited ---
+    let emiOnMaturityDate = 0;
+    let loanInterestPaidOnMaturity = 0;
+    let loanPrincipalPaidOnMaturity = 0;
+    let netCashFlowMaturityEMI_PostTDS = 0;
+    let netCashFlowMaturityEMI_PreTDS = 0;
+
+    // Check if the maturity date is also a scheduled EMI payment date and loan is still outstanding
+    // (This check assumes EMI is paid on the same day of the month as firstPaymentDate)
+    const isMaturityAlsoPaymentDate = bondMaturityDate.getDate() === firstPaymentDate.getDate();
+    
+    if (isMaturityAlsoPaymentDate && currentLoanPrincipal > 0 && paymentsMadeCount < loanTenureMonths) {
+        emiOnMaturityDate = loanEmi;
+        loanInterestPaidOnMaturity = currentLoanPrincipal * (loanAnnualInterestRate / 12);
+        loanPrincipalPaidOnMaturity = loanEmi - loanInterestPaidOnMaturity;
+        currentLoanPrincipal -= loanPrincipalPaidOnMaturity;
+        paymentsMadeCount += 1; // Increment payments made count for this EMI
+
+        // Update net cash flow for this EMI
+        netCashFlowMaturityEMI_PostTDS = -emiOnMaturityDate;
+        netCashFlowMaturityEMI_PreTDS = -emiOnMaturityDate;
     }
 
-    const bondPrincipalReceived = numBonds * bondFaceValuePerBond;
     const daysForFinalCoupon = (bondMaturityDate.getTime() - previousBondPaymentDate.getTime()) / (1000 * 60 * 60 * 24);
     const finalBondInterestIncome = dailyBondInterest * daysForFinalCoupon;
-    
-    // Calculate TDS for final coupon
     const finalTdsAmount = finalBondInterestIncome * tdsRate;
     const finalPostTdsBondInterest = finalBondInterestIncome - finalTdsAmount;
 
-    // --- First entry at maturity: Bond Interest Credited ---
-    // Net cash flow for bond interest received (Post-TDS)
-    const netCashFlowMaturityBondInterestPostTDS = finalPostTdsBondInterest;
-    cashFlowsForPostTdsIrr.push(netCashFlowMaturityBondInterestPostTDS);
-    datesForPostTdsIrr.push(bondMaturityDate);
+    // Combined net cash flow for EMI (if any) and Bond Interest
+    const netCashFlowMaturityCombinedPostTDS = netCashFlowMaturityEMI_PostTDS + finalPostTdsBondInterest;
+    const netCashFlowMaturityCombinedPreTDS = netCashFlowMaturityEMI_PreTDS + finalBondInterestIncome;
 
-    // Net cash flow for bond interest received (Pre-TDS)
-    const netCashFlowMaturityBondInterestPreTDS = finalBondInterestIncome;
-    cashFlowsForPreTdsIrr.push(netCashFlowMaturityBondInterestPreTDS);
+    cashFlowsForPostTdsIrr.push(netCashFlowMaturityCombinedPostTDS);
+    datesForPostTdsIrr.push(bondMaturityDate);
+    cashFlowsForPreTdsIrr.push(netCashFlowMaturityCombinedPreTDS);
     datesForPreTdsIrr.push(bondMaturityDate);
 
     currentSimulationData.cashFlows.push({
@@ -504,22 +505,24 @@ document.getElementById('runSimulationBtn').addEventListener('click', () => {
         'Bond Interest Credited': finalBondInterestIncome,
         'TDS on Bond Interest': finalTdsAmount,
         'Post-TDS Bond Interest': finalPostTdsBondInterest,
-        'EMI Paid': 0.0, // No EMI here
-        'Loan Interest Paid': 0.0,
-        'Loan Principal Paid': 0.0,
-        'Loan Outstanding': Math.max(0, currentLoanPrincipal), // Loan outstanding remains same before principal payment
-        'Net Cash Flow (Post-TDS)': netCashFlowMaturityBondInterestPostTDS,
-        'Net Cash Flow (Pre-TDS)': netCashFlowMaturityBondInterestPreTDS
+        'EMI Paid': emiOnMaturityDate,
+        'Loan Interest Paid': loanInterestPaidOnMaturity,
+        'Loan Principal Paid': loanPrincipalPaidOnMaturity,
+        'Loan Outstanding': Math.max(0, currentLoanPrincipal), // Updated after this EMI
+        'Net Cash Flow (Post-TDS)': netCashFlowMaturityCombinedPostTDS,
+        'Net Cash Flow (Pre-TDS)': netCashFlowMaturityCombinedPreTDS
     });
 
-    // --- Second entry at maturity: Bond Principal Received & Loan Principal Paid ---
-    // Net cash flow for bond principal received and loan principal paid (Post-TDS)
-    const netCashFlowMaturityPrincipalPostTDS = bondPrincipalReceived - outstandingLoanPrincipalAtMaturity;
+    // --- Second entry at maturity: Bond Principal Received & Final Loan Principal Paid ---
+    let finalOutstandingLoanPrincipal = Math.max(0, currentLoanPrincipal); // What's left after the potential last EMI
+    
+    // Net cash flow for bond principal received and final loan principal paid (Post-TDS)
+    const netCashFlowMaturityPrincipalPostTDS = bondPrincipalReceived - finalOutstandingLoanPrincipal;
     cashFlowsForPostTdsIrr.push(netCashFlowMaturityPrincipalPostTDS);
     datesForPostTdsIrr.push(bondMaturityDate);
 
-    // Net cash flow for bond principal received and loan principal paid (Pre-TDS)
-    const netCashFlowMaturityPrincipalPreTDS = bondPrincipalReceived - outstandingLoanPrincipalAtMaturity;
+    // Net cash flow for bond principal received and final loan principal paid (Pre-TDS)
+    const netCashFlowMaturityPrincipalPreTDS = bondPrincipalReceived - finalOutstandingLoanPrincipal;
     cashFlowsForPreTdsIrr.push(netCashFlowMaturityPrincipalPreTDS);
     datesForPreTdsIrr.push(bondMaturityDate);
 
@@ -528,9 +531,9 @@ document.getElementById('runSimulationBtn').addEventListener('click', () => {
         'Bond Interest Credited': 0.0, // No interest credited in this entry
         'TDS on Bond Interest': 0.0,
         'Post-TDS Bond Interest': 0.0,
-        'EMI Paid': outstandingLoanPrincipalAtMaturity, // This is the lump-sum repayment
-        'Loan Interest Paid': finalLoanInterestPaid,
-        'Loan Principal Paid': finalLoanPrincipalPaid,
+        'EMI Paid': finalOutstandingLoanPrincipal, // This is the lump-sum repayment
+        'Loan Interest Paid': 0.0, // No interest paid with lump sum principal
+        'Loan Principal Paid': finalOutstandingLoanPrincipal,
         'Loan Outstanding': 0.0, // Loan is cleared
         'Net Cash Flow (Post-TDS)': netCashFlowMaturityPrincipalPostTDS,
         'Net Cash Flow (Pre-TDS)': netCashFlowMaturityPrincipalPreTDS
